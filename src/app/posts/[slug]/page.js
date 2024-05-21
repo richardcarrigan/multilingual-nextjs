@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import markdownToHtml from '@/lib/markdownToHtml';
 import PostBody from '@/app/_components/post-body';
 import Alert from '@/app/_components/alert';
 import Container from '@/app/_components/container';
@@ -14,7 +15,7 @@ export default async function Post({ params }) {
     return notFound();
   }
 
-  const content = post.content;
+  const content = await markdownToHtml(post.content || '');
 
   return (
     <main>
