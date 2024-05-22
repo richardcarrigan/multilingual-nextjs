@@ -4,7 +4,7 @@ on:
   pull_request:
     types: [closed]
     branches:
-      - main
+      - add-github-actions
 
 jobs:
   build-and-deploy:
