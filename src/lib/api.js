@@ -1,14 +1,20 @@
-import posts from '@/data/posts.json';
+import fs from "fs";
+import matter from "gray-matter";
+import { join } from "path";
+
+const postsDirectory = join(process.cwd(), "_posts");
 
 export function getPostSlugs() {
-  return posts.data.map(post => post.slug);
+  return fs.readdirSync(postsDirectory);
 }
 
 export function getPostBySlug(slug) {
-  const post = posts.data.find(post => { return post.slug === slug });
-  const { data, content } = post;
+  const realSlug = slug.replace(/\.md$/, "");
+  const fullPath = join(postsDirectory, `${realSlug}.md`);
+  const fileContents = fs.readFileSync(fullPath, "utf8");
+  const { data, content } = matter(fileContents);
 
-  return { ...data, slug, content };
+  return { ...data, slug: realSlug, content };
 }
 
 export function getAllPosts() {
