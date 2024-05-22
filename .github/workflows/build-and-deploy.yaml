@@ -1,5 +1,9 @@
 name: Deploy to Azure App Service
 
+env:
+  APP_LOCATION: '/' # location of your client code
+  OUTPUT_LOCATION: 'out' # location of client code build output
+
 on:
   pull_request:
     types: [closed]
@@ -26,3 +30,12 @@ jobs:
 
       - name: Build Next.js app
         run: npm run build
+
+      - name: Deploy to Azure Static Web Apps
+        uses: azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }} # Used for GitHub integrations (i.e. PR comments)
+          action: 'upload'
+          app_location: ${{ env.APP_LOCATION }}
+          output_location: ${{ env.OUTPUT_LOCATION }}
