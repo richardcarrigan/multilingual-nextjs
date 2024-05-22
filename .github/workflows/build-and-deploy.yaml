@@ -8,6 +8,7 @@ on:
 
 jobs:
   build-and-deploy:
+    # Ensures that app only deploys if the PR has been accepted and merged
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
 
