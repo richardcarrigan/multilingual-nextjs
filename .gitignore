@@ -1,6 +1,7 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
+*/node_modules
 /node_modules
 /.pnp
 .pnp.js
@@ -27,6 +28,7 @@ yarn-error.log*
 
 # local env files
 .env*.local
+local.settings.json
 
 # vercel
 .vercel
@@ -34,3 +36,11 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Azurite files
+__blobstorage__
+__queuestorage__
+__azurite_db*__.json
+
+# VS Code config
+.vscode
