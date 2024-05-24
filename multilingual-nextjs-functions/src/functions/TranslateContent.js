@@ -48,7 +48,11 @@ app.http('TranslateContent', {
             inputContainerClient,
             inputSharedKeyCredential,
             blob.name
-          );
+        );
+
+        const targetFileName = blob.name.replace('en-us', 'es-es');
+        
+        context.log(blob);
 
           // Azure AI Translator blob-specific config
           const data = JSON.stringify({
@@ -60,7 +64,7 @@ app.http('TranslateContent', {
                 targets: [
                   {
                     // Even though we are specifying the blob name, we still use the container-scoped SAS token, since the new file hasn't been created yet, so it's impossible to have a blob-specific SAS token for it.
-                    targetUrl: `https://${process.env.OUTPUT_BLOB_STORAGE_ACCOUNT_NAME}.blob.core.windows.net/${process.env.OUTPUT_BLOB_STORAGE_CONTAINER_NAME}/${blob.name}?${outputSas}`,
+                    targetUrl: `https://${process.env.OUTPUT_BLOB_STORAGE_ACCOUNT_NAME}.blob.core.windows.net/${process.env.OUTPUT_BLOB_STORAGE_CONTAINER_NAME}/${targetFileName}?${outputSas}`,
                     // Refer to https://learn.microsoft.com/en-us/azure/ai-services/translator/language-support for which code to use for each language/dialect
                     language: 'es', // Spanish
                   },
