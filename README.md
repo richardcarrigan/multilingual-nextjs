@@ -1,4 +1,10 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+This is a proof-of-concept [Next.js](https://nextjs.org/) project, based on the Blog Example project, that showcases an end-to-end automated workflow for translating content into other languages/dialects using Azure AI Translator. At a high-level, the process can be described as follows:
+
+1. Upload the `_posts` directory to an Azure blob storage container called `input-files`.
+2. Use an Azure Function App to trigger the Azure AI Translator service.
+3. Azure AI Translator translates each file and places the translated file into an Azure blob storage container called `output-files`.
+4. Download the `_posts` directory from `output-files` and add it to the repo.
+5. Deploy the app to an Azure Static Web App.
 
 ## Getting Started
 
@@ -6,12 +12,6 @@ First, run the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
