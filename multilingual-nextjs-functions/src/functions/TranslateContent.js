@@ -41,6 +41,14 @@ app.http('TranslateContent', {
       let processedBlobCounter = 0;
       let activeOperations = [];
 
+    const glossaryContainerClient =
+      inputBlobServiceClient.getContainerClient('glossaries');
+    const glossaryUrl = generateBlobSas(
+      glossaryContainerClient,
+      inputSharedKeyCredential,
+      'en-es.csv'
+    );
+
       // Check each blob in the `input-files` container, but only process English localized content HTML files with content
       for await (const blob of inputContainerClient.listBlobsFlat()) {
           // Generate blob-scoped SAS token
@@ -51,8 +59,6 @@ app.http('TranslateContent', {
         );
 
         const targetFileName = blob.name.replace('en-us', 'es-es');
-        
-        context.log(blob);
 
           // Azure AI Translator blob-specific config
           const data = JSON.stringify({
@@ -67,6 +73,12 @@ app.http('TranslateContent', {
                     targetUrl: `https://${process.env.OUTPUT_BLOB_STORAGE_ACCOUNT_NAME}.blob.core.windows.net/${process.env.OUTPUT_BLOB_STORAGE_CONTAINER_NAME}/${targetFileName}?${outputSas}`,
                     // Refer to https://learn.microsoft.com/en-us/azure/ai-services/translator/language-support for which code to use for each language/dialect
                     language: 'es', // Spanish
+                    glossaries: [
+                      {
+                        glossaryUrl,
+                        format: 'csv',
+                      },
+                    ],
                   },
                 ],
                 storageType: 'File', // Default: 'Folder'
