@@ -1,0 +1,17 @@
+name: ARM template deployment
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - add-translation-function
+
+jobs:
+  provision:
+    # Ensures that Azure resources are only provisioned if the PR has been accepted and merged
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Source
+        uses: actions/checkout@v4
