@@ -53,4 +53,16 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-04-01' = {
     name: 'Standard_LRS'
   }
   kind: 'Storage'
+
+  resource blobServices 'blobServices@2023-04-01' = {
+    name: 'default'
+
+    resource inputFilesContainer 'containers@2023-04-01' = {
+      name: 'input-files'
+    }
+
+    resource outputFilesContainer 'containers@2023-04-01' = {
+      name: 'output-files'
+    }
+  }
 }
