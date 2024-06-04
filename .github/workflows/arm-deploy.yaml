@@ -6,6 +6,10 @@ on:
     branches:
       - add-translation-function
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   provision:
     # Ensures that Azure resources are only provisioned if the PR has been accepted and merged
