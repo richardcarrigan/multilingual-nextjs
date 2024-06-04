@@ -5,21 +5,18 @@ env:
   OUTPUT_LOCATION: '.next' # location of client code build output
 
 on:
-  push:
+  pull_request:
+    types: [closed]
     branches:
       - main
     paths-ignore:
       - 'multilingual-nextjs-functions/**'
       - 'function-app-deployment.bicep'
-  pull_request:
-    types: [closed]
-    branches:
-      - main
 
 jobs:
   build-and-deploy:
     # Ensures that app only deploys if the PR has been accepted and merged, and isn't just a change to the function app files
-    if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.merged) }}
+    if: ${{ github.event.pull_request.merged }}
     runs-on: ubuntu-latest
 
     steps:
