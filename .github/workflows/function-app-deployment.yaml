@@ -1,10 +1,16 @@
-name: ARM template deployment
+name: Function app deployment
 
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'multilingual-nextjs-functions/**'
+      - 'function-app-deployment.bicep'
   pull_request:
     types: [closed]
     branches:
-      - add-translation-function
+      - main
 
 permissions:
   id-token: write
@@ -16,8 +22,8 @@ env:
 
 jobs:
   provision:
-    # Ensures that Azure resources are only provisioned if the PR has been accepted and merged
-    if: github.event.pull_request.merged == true
+    # Ensures that Azure resources are only provisioned if the PR has been accepted and merged, and contains changes to the function app or the ARM template
+    if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.merged) }}
     runs-on: ubuntu-latest
 
     steps:
@@ -48,7 +54,7 @@ jobs:
           # Provide the name of a resource group, only required for resource Group deployments.
           resourceGroupName: ${{ vars.RESOURCE_GROUP_NAME }}
           # Specify the path or URL to the Azure Resource Manager template.
-          template: './multilingual-nextjs-rg.bicep'
+          template: './function-app-deployment.bicep'
           # Incremental (only add resources to resource group) or Complete (remove extra resources from resource group) or Validate (only validates the template).
           deploymentMode: 'Incremental'
 
@@ -107,11 +113,3 @@ jobs:
         with:
           app-name: 'multilingual-nextjs-functions'
           package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
-
-      # Upload `_posts\en-us` to `input-files` blob container
-
-      # Trigger `TranslateContent` function
-
-      # Download `_posts\es-es` from `output-files` blob container
-
-      # Deploy Next.js app code
