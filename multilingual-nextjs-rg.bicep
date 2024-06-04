@@ -38,6 +38,30 @@ resource functionApp 'Microsoft.Web/sites@2023-12-01' = {
           value: 'node'
         }
         {
+          name: 'INPUT_BLOB_STORAGE_ACCOUNT_KEY'
+          value: listKeys(storageAccount.id, '2019-06-01').keys[0].value
+        }
+        {
+          name: 'INPUT_BLOB_STORAGE_ACCOUNT_NAME'
+          value: storageAccount.name
+        }
+        {
+          name: 'INPUT_BLOB_STORAGE_CONTAINER_NAME'
+          value: 'input-files'
+        }
+        {
+          name: 'OUTPUT_BLOB_STORAGE_ACCOUNT_KEY'
+          value: listKeys(storageAccount.id, '2019-06-01').keys[0].value
+        }
+        {
+          name: 'OUTPUT_BLOB_STORAGE_ACCOUNT_NAME'
+          value: storageAccount.name
+        }
+        {
+          name: 'OUTPUT_BLOB_STORAGE_CONTAINER_NAME'
+          value: 'output-files'
+        }
+        {
           // Specifies storage account to run functions from, store function code files in
           name: 'WEBSITE_CONTENTAZUREFILECONNECTIONSTRING'
           value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};AccountKey=${listKeys(storageAccount.id, '2019-06-01').keys[0].value};EndpointSuffix=${environment().suffixes.storage}'
