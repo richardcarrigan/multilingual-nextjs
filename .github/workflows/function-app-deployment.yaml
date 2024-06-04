@@ -1,16 +1,13 @@
 name: Function app deployment
 
 on:
-  push:
+  pull_request:
+    types: [closed]
     branches:
       - main
     paths:
       - 'multilingual-nextjs-functions/**'
       - 'function-app-deployment.bicep'
-  pull_request:
-    types: [closed]
-    branches:
-      - main
 
 permissions:
   id-token: write
@@ -23,7 +20,7 @@ env:
 jobs:
   provision:
     # Ensures that Azure resources are only provisioned if the PR has been accepted and merged, and contains changes to the function app or the ARM template
-    if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.merged) }}
+    if: ${{ github.event.pull_request.merged }}
     runs-on: ubuntu-latest
 
     steps:
