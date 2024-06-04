@@ -39,3 +39,13 @@ jobs:
           template: './multilingual-nextjs-rg.bicep'
           # Incremental (only add resources to resource group) or Complete (remove extra resources from resource group) or Validate (only validates the template).
           deploymentMode: 'Incremental'
+
+      # Deploy function app code
+
+      # Upload `_posts\en-us` to `input-files` blob container
+
+      # Trigger `TranslateContent` function
+
+      # Download `_posts\es-es` from `output-files` blob container
+
+      # Deploy Next.js app code
