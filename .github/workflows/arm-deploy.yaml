@@ -32,9 +32,9 @@ jobs:
         with:
           inlineScript: |
             #!/bin/bash
-            echo ${{ env.RESOURCE_GROUP_NAME }}
-            echo ${{ env.RESOURCE_GROUP_LOCATION }}
-            az group create --name ${{ env.RESOURCE_GROUP_NAME }} --location ${{ env.RESOURCE_GROUP_LOCATION }}
+            echo $RESOURCE_GROUP_NAME
+            echo $RESOURCE_GROUP_LOCATION
+            az group create --name $RESOURCE_GROUP_NAME --location $RESOURCE_GROUP_LOCATION
             echo "Azure resource group created"
 
       # Deploy ARM template
