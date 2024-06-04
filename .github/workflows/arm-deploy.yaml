@@ -27,6 +27,14 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
+      # Ensure resource group exists before deploying resources
+      - uses: Azure/CLI@v1
+        with:
+          inlineScript: |
+            #!/bin/bash
+            az group create --name ${{ env.ResourceGroupName }} --location ${{ env.ResourceGroupLocation }}
+            echo "Azure resource group created"
+
       # Deploy ARM template
       - name: Deploy Azure Resource Manager (ARM) Template
         uses: Azure/arm-deploy@v2
@@ -34,7 +42,7 @@ jobs:
           # Provide the scope of the deployment. Valid values are: 'resourcegroup', 'tenant', 'managementgroup', 'subscription'
           scope: 'resourcegroup'
           # Provide the name of a resource group, only required for resource Group deployments.
-          resourceGroupName: 'multilingual-nextjs-rg'
+          resourceGroupName: ${{ env.ResourceGroupName }}
           # Specify the path or URL to the Azure Resource Manager template.
           template: './multilingual-nextjs-rg.bicep'
           # Incremental (only add resources to resource group) or Complete (remove extra resources from resource group) or Validate (only validates the template).
