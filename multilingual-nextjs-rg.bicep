@@ -16,22 +16,22 @@ resource functionApp 'Microsoft.Web/sites@2023-12-01' = {
   location: location
   kind: 'functionapp,linux'
   properties: {
-    reserved: true
-    siteConfig: {
-      linuxFxVersion: 'Node|20'
-    }
     httpsOnly: true
     publicNetworkAccess: 'Enabled'
-  }
-
-  resource config 'config@2023-12-01' = {
-    name: 'web'
-    properties: {
+    reserved: true
+    siteConfig: {
+      appSettings: [
+        {
+          name: 'AzureWebJobsStorage'
+          value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};AccountKey=${listKeys(storageAccount.id, '2019-06-01').keys[0].value};EndpointSuffix=${environment().suffixes.storage}'
+        }
+      ]
       cors: {
         allowedOrigins: [
           'https://portal.azure.com'
         ]
       }
+      linuxFxVersion: 'Node|20'
     }
   }
 }
