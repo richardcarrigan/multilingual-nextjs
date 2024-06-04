@@ -15,3 +15,15 @@ jobs:
     steps:
       - name: Checkout Source
         uses: actions/checkout@v4
+
+      - name: Deploy Azure Resource Manager (ARM) Template
+        uses: Azure/arm-deploy@v2
+        with:
+          # Provide the scope of the deployment. Valid values are: 'resourcegroup', 'tenant', 'managementgroup', 'subscription'
+          scope: 'resourcegroup'
+          # Provide the name of a resource group, only required for resource Group deployments.
+          resourceGroupName: 'multilingual-nextjs-rg'
+          # Specify the path or URL to the Azure Resource Manager template.
+          template: 'multilingual-nextjs-rg.bicep'
+          # Incremental (only add resources to resource group) or Complete (remove extra resources from resource group) or Validate (only validates the template).
+          deploymentMode: 'Incremental'
