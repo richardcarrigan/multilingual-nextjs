@@ -32,7 +32,7 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       # Ensure resource group exists before deploying resources
-      - uses: Azure/CLI@v1
+      - uses: azure/cli@v2
         with:
           inlineScript: |
             #!/bin/bash
@@ -41,7 +41,7 @@ jobs:
 
       # Deploy ARM template
       - name: Deploy Azure Resource Manager (ARM) Template
-        uses: Azure/arm-deploy@v2
+        uses: azure/arm-deploy@v2
         with:
           # Provide the scope of the deployment. Valid values are: 'resourcegroup', 'tenant', 'managementgroup', 'subscription'
           scope: 'resourcegroup'
@@ -60,7 +60,7 @@ jobs:
         uses: actions/checkout@main
 
       - name: 'Setup Node ${{ env.NODE_VERSION }} Environment'
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
 
@@ -77,7 +77,7 @@ jobs:
         run: zip release.zip ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/* -r
 
       - name: Upload artifact for deployment job
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: multilingual-nextjs-functions
           path: release.zip
@@ -87,12 +87,19 @@ jobs:
     needs: build
     steps:
       - name: Download artifact from build job
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: multilingual-nextjs-functions
 
       - name: Unzip artifact for deployment
         run: unzip release.zip
+
+      # Log into Azure
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Deploy `TranslateContent` function to Azure Function App
         uses: Azure/functions-action@v1
