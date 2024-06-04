@@ -16,6 +16,7 @@ permissions:
 env:
   APP_LOCATION: '/' # location of your client code
   OUTPUT_LOCATION: '.next' # location of client code build output
+  AZURE_WEBAPP_NAME: 'multilingual-nextjs-app'
 
 jobs:
   provision:
@@ -54,6 +55,7 @@ jobs:
           template: './nextjs-app-deployment.bicep'
           # Incremental (only add resources to resource group) or Complete (remove extra resources from resource group) or Validate (only validates the template).
           deploymentMode: 'Incremental'
+          parameters: appName=${{ env.AZURE_WEBAPP_NAME }}
 
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -74,10 +76,22 @@ jobs:
       - name: Build Next.js app
         run: npm run build
 
+      # Log into Azure
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Get Static Web App API Key
+        run: |
+          api_key=$(az staticwebapp secrets list --name ${{ env.AZURE_WEBAPP_NAME }} --query "properties.apiKey" -o tsv)
+          echo "API_KEY=$api_key" >> $GITHUB_ENV
+
       - name: Deploy to Azure Static Web Apps
         uses: azure/static-web-apps-deploy@v1
         with:
-          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          azure_static_web_apps_api_token: ${{ env.API_KEY }}
           repo_token: ${{ secrets.GITHUB_TOKEN }} # Used for GitHub integrations (i.e. PR comments)
           action: 'upload'
           app_location: ${{ env.APP_LOCATION }}
