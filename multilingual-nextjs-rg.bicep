@@ -11,6 +11,15 @@ resource staticSite 'Microsoft.Web/staticSites@2022-09-01' = {
   properties: {}
 }
 
+resource appInsights 'Microsoft.Insights/components@2020-02-02' = {
+  kind: 'web'
+  location: location
+  name: functionAppName
+  properties: {
+    Application_Type: 'web'
+  }
+}
+
 // Function app for orchestrating translation process
 resource functionApp 'Microsoft.Web/sites@2023-12-01' = {
   name: functionAppName
@@ -22,6 +31,11 @@ resource functionApp 'Microsoft.Web/sites@2023-12-01' = {
     reserved: true
     siteConfig: {
       appSettings: [
+        {
+          // Connects function app to application insights
+          name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
+          value: appInsights.properties.ConnectionString
+        }
         {
           // Specifies storage account to send runtime logs to
           name: 'AzureWebJobsStorage'
