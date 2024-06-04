@@ -1,0 +1,115 @@
+name: Function app deployment
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'multilingual-nextjs-functions/**'
+      - 'function-app-deployment.bicep'
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AZURE_FUNCTIONAPP_PACKAGE_PATH: './multilingual-nextjs-functions'
+  NODE_VERSION: '20.x'
+
+jobs:
+  provision:
+    # Ensures that Azure resources are only provisioned if the PR has been accepted and merged, and contains changes to the function app or the ARM template
+    if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.merged) }}
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout code
+      - uses: actions/checkout@main
+
+      # Log into Azure
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      # Ensure resource group exists before deploying resources
+      - uses: azure/cli@v2
+        with:
+          inlineScript: |
+            #!/bin/bash
+            az group create --name ${{ vars.RESOURCE_GROUP_NAME }} --location ${{ vars.RESOURCE_GROUP_LOCATION }}
+            echo "Azure resource group created"
+
+      # Deploy ARM template
+      - name: Deploy Azure Resource Manager (ARM) Template
+        uses: azure/arm-deploy@v2
+        with:
+          # Provide the scope of the deployment. Valid values are: 'resourcegroup', 'tenant', 'managementgroup', 'subscription'
+          scope: 'resourcegroup'
+          # Provide the name of a resource group, only required for resource Group deployments.
+          resourceGroupName: ${{ vars.RESOURCE_GROUP_NAME }}
+          # Specify the path or URL to the Azure Resource Manager template.
+          template: './function-app-deployment.bicep'
+          # Incremental (only add resources to resource group) or Complete (remove extra resources from resource group) or Validate (only validates the template).
+          deploymentMode: 'Incremental'
+
+  build:
+    runs-on: ubuntu-latest
+    needs: provision
+    steps:
+      - name: 'Checkout GitHub Action'
+        uses: actions/checkout@main
+
+      - name: 'Setup Node ${{ env.NODE_VERSION }} Environment'
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: 'Resolve project dependencies using NPM'
+        shell: bash
+        run: |
+          pushd ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
+          npm install
+          npm run build --if-present
+          npm run test --if-present
+          popd
+
+      - name: Zip artifact for deployment
+        run: zip release.zip ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/* -r
+
+      - name: Upload artifact for deployment job
+        uses: actions/upload-artifact@v4
+        with:
+          name: multilingual-nextjs-functions
+          path: release.zip
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Download artifact from build job
+        uses: actions/download-artifact@v4
+        with:
+          name: multilingual-nextjs-functions
+
+      - name: Unzip artifact for deployment
+        run: unzip release.zip
+
+      # Log into Azure
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Deploy `TranslateContent` function to Azure Function App
+        uses: Azure/functions-action@v1
+        id: fa
+        with:
+          app-name: 'multilingual-nextjs-functions'
+          package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}

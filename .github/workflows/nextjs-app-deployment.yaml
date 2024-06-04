@@ -1,19 +1,25 @@
-name: Deploy to Azure App Service
+name: Next.js app deployment
 
 env:
   APP_LOCATION: '/' # location of your client code
   OUTPUT_LOCATION: '.next' # location of client code build output
 
 on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - 'multilingual-nextjs-functions/**'
+      - 'function-app-deployment.bicep'
   pull_request:
     types: [closed]
     branches:
-      - add-github-actions
+      - main
 
 jobs:
   build-and-deploy:
-    # Ensures that app only deploys if the PR has been accepted and merged
-    if: github.event.pull_request.merged == true
+    # Ensures that app only deploys if the PR has been accepted and merged, and isn't just a change to the function app files
+    if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.merged) }}
     runs-on: ubuntu-latest
 
     steps:

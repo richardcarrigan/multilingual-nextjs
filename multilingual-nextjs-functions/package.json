@@ -1,0 +1,17 @@
+{
+  "name": "multilingual-nextjs-functions",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "scripts": {
+    "start": "func start",
+    "test": "echo \"No tests yet...\""
+  },
+  "dependencies": {
+    "@azure/functions": "^4.0.0",
+    "@azure/storage-blob": "^12.18.0",
+    "axios": "^1.7.2",
+    "delay": "^6.0.0"
+  },
+  "main": "src/functions/*.js"
+}
