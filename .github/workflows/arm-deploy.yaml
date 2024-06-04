@@ -32,7 +32,9 @@ jobs:
         with:
           inlineScript: |
             #!/bin/bash
-            az group create --name ${{ env.ResourceGroupName }} --location ${{ env.ResourceGroupLocation }}
+            echo ${{ env.RESOURCE_GROUP_NAME }}
+            echo ${{ env.RESOURCE_GROUP_LOCATION }}
+            az group create --name ${{ env.RESOURCE_GROUP_NAME }} --location ${{ env.RESOURCE_GROUP_LOCATION }}
             echo "Azure resource group created"
 
       # Deploy ARM template
@@ -42,7 +44,7 @@ jobs:
           # Provide the scope of the deployment. Valid values are: 'resourcegroup', 'tenant', 'managementgroup', 'subscription'
           scope: 'resourcegroup'
           # Provide the name of a resource group, only required for resource Group deployments.
-          resourceGroupName: ${{ env.ResourceGroupName }}
+          resourceGroupName: ${{ env.RESOURCE_GROUP_NAME }}
           # Specify the path or URL to the Azure Resource Manager template.
           template: './multilingual-nextjs-rg.bicep'
           # Incremental (only add resources to resource group) or Complete (remove extra resources from resource group) or Validate (only validates the template).
