@@ -21,7 +21,7 @@ jobs:
       - uses: actions/checkout@main
 
       # Log into Azure
-      - uses: azure/login@v1
+      - uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
@@ -39,3 +39,19 @@ jobs:
           template: './multilingual-nextjs-rg.bicep'
           # Incremental (only add resources to resource group) or Complete (remove extra resources from resource group) or Validate (only validates the template).
           deploymentMode: 'Incremental'
+
+      # Deploy function app code
+      - name: Deploy `TranslateContent` function to Azure Function App
+        uses: Azure/functions-action@v1
+        id: fa
+        with:
+          app-name: 'multilingual-nextjs-functions'
+          package: './multilingual-nextjs-functions'
+
+      # Upload `_posts\en-us` to `input-files` blob container
+
+      # Trigger `TranslateContent` function
+
+      # Download `_posts\es-es` from `output-files` blob container
+
+      # Deploy Next.js app code

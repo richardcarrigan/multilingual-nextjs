@@ -12,7 +12,7 @@ resource staticSite 'Microsoft.Web/staticSites@2022-09-01' = {
 
 // Function app for orchestrating translation process
 resource functionApp 'Microsoft.Web/sites@2023-12-01' = {
-  name: 'multilingual-nextjs-functions' // Pluralize once original function app is deleted
+  name: 'multilingual-nextjs-functions'
   location: location
   kind: 'functionapp,linux'
   properties: {
