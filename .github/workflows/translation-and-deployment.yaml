@@ -17,6 +17,7 @@ env:
   AZURE_WEBAPP_NAME: 'multilingual-nextjs-app'
   NODE_VERSION: '20.x'
   OUTPUT_LOCATION: '.next' # location of client code build output
+  AZURE_STORAGE_ACCOUNT_NAME: 'multilingualnextjssa'
 
 jobs:
   provision:
@@ -126,37 +127,29 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: 'Upload current glossaries to `glossaries` blob storage container'
+      - name: 'Prepare for translation execution'
         uses: azure/cli@v2
         with:
           inlineScript: |
             #!/bin/bash
-            az storage blob upload-batch --destination 'glossaries' --source './multilingual-nextjs-functions/src/glossaries' --account-name 'multilingualnextjssa'
-
-      - name: 'Upload `_posts` to `input-files` blob storage container'
-        uses: azure/cli@v2
-        with:
-          inlineScript: |
-            #!/bin/bash
-            az storage blob upload-batch --destination 'input-files' --source './_posts' --account-name 'multilingualnextjssa'
-
-      - name: 'Clear `output-files` blob storage container'
-        uses: azure/cli@v2
-        with:
-          inlineScript: |
-            #!/bin/bash
-            az storage blob delete-batch --account-name 'multilingualnextjssa' --source 'output-files'
+            az storage blob delete-batch --account-name ${{ env.AZURE_STORAGE_ACCOUNT_NAME }} --source 'output-files' --auth-mode login
+            az storage blob delete-batch --account-name ${{ env.AZURE_STORAGE_ACCOUNT_NAME }} --source 'input-files' --auth-mode login
+            az storage blob delete-batch --account-name ${{ env.AZURE_STORAGE_ACCOUNT_NAME }} --source 'glossaries' --auth-mode login
+            az storage blob upload-batch --destination 'glossaries' --source './multilingual-nextjs-functions/src/glossaries' --account-name ${{ env.AZURE_STORAGE_ACCOUNT_NAME }}
+            az storage blob upload-batch --destination 'input-files' --source './_posts' --account-name ${{ env.AZURE_STORAGE_ACCOUNT_NAME }}
 
       # - name: 'Trigger function app and wait for successful (200) response'
 
       # - name: 'Add contents of `output-files` blob storage container to `_posts` folder'
 
-      - name: 'Clear `input-files` blob storage container'
+      - name: 'Post translation clean-up'
         uses: azure/cli@v2
         with:
           inlineScript: |
             #!/bin/bash
-            az storage blob delete-batch --account-name 'multilingualnextjssa' --source 'input-files'
+            az storage blob delete-batch --account-name ${{ env.AZURE_STORAGE_ACCOUNT_NAME }} --source 'input-files' --auth-mode login
+            az storage blob delete-batch --account-name ${{ env.AZURE_STORAGE_ACCOUNT_NAME }} --source 'output-files' --auth-mode login
+            az storage blob delete-batch --account-name ${{ env.AZURE_STORAGE_ACCOUNT_NAME }} --source 'glossaries' --auth-mode login
 
   build-and-deploy-nextjs:
     runs-on: ubuntu-latest
