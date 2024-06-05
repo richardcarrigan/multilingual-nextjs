@@ -177,6 +177,15 @@ jobs:
       - name: Build Next.js app
         run: npm run build
 
+      - name: Zip artifact for deployment
+        run: zip release.zip ${{ env.OUTPUT_LOCATION }}/* -r
+
+      - name: Upload artifact for deployment job
+        uses: actions/upload-artifact@v4
+        with:
+          name: multilingual-nextjs-app
+          path: release.zip
+
       # Log into Azure
       - uses: azure/login@v2
         with:
