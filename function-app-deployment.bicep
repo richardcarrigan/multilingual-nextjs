@@ -121,6 +121,10 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-04-01' = {
       name: 'input-files'
     }
 
+    resource glossariesContainer 'containers@2023-04-01' = {
+      name: 'glossaries'
+    }
+
     resource outputFilesContainer 'containers@2023-04-01' = {
       name: 'output-files'
     }
