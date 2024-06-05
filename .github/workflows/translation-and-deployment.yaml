@@ -56,24 +56,6 @@ jobs:
           deploymentMode: 'Incremental'
           parameters: appName=${{ env.AZURE_WEBAPP_NAME }}
 
-  translate:
-    runs-on: ubuntu-latest
-    needs: provision
-    steps:
-      - name: 'Upload current glossaries to `glossaries` blob storage container'
-        uses: azure/cli@v2
-        with:
-          inlineScript: |
-            #!/bin/bash
-            az storage blob upload-batch --destination 'glossaries' --source './multilingual-nextjs-functions/src/glossaries' --account-name 'multilingualnextjssa'
-
-      - name: 'Upload `_posts` to `input-files` blob storage container'
-        uses: azure/cli@v2
-        with:
-          inlineScript: |
-            #!/bin/bash
-            az storage blob upload-batch --destination 'input-files' --source './_posts' --account-name 'multilingualnextjssa'
-
   build-function-app:
     runs-on: ubuntu-latest
     needs: provision
@@ -130,9 +112,27 @@ jobs:
           app-name: 'multilingual-nextjs-functions'
           package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
 
+  translate:
+    runs-on: ubuntu-latest
+    needs: deploy-function-app
+    steps:
+      - name: 'Upload current glossaries to `glossaries` blob storage container'
+        uses: azure/cli@v2
+        with:
+          inlineScript: |
+            #!/bin/bash
+            az storage blob upload-batch --destination 'glossaries' --source './multilingual-nextjs-functions/src/glossaries' --account-name 'multilingualnextjssa'
+
+      - name: 'Upload `_posts` to `input-files` blob storage container'
+        uses: azure/cli@v2
+        with:
+          inlineScript: |
+            #!/bin/bash
+            az storage blob upload-batch --destination 'input-files' --source './_posts' --account-name 'multilingualnextjssa'
+
   build-and-deploy-nextjs:
     runs-on: ubuntu-latest
-    needs: provision
+    needs: translate
 
     steps:
       - name: Checkout Source
