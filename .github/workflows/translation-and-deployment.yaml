@@ -138,7 +138,9 @@ jobs:
             az storage blob upload-batch --destination 'glossaries' --source './multilingual-nextjs-functions/src/glossaries' --account-name ${{ env.AZURE_STORAGE_ACCOUNT_NAME }} --auth-mode key
             az storage blob upload-batch --destination 'input-files' --source './_posts' --account-name ${{ env.AZURE_STORAGE_ACCOUNT_NAME }} --auth-mode key
 
-      # - name: 'Trigger function app and wait for successful (200) response'
+      - name: 'Trigger function app and wait for successful (200) response'
+        run: |
+          curl --location 'https://multilingual-nextjs-functions.azurewebsites.net/api/TranslateContent'
 
       - name: 'Add contents of `output-files` blob storage container to `_posts` folder'
         uses: azure/cli@v2
