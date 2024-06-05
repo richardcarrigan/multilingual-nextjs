@@ -82,10 +82,6 @@ resource functionApp 'Microsoft.Web/sites@2023-12-01' = {
           value: translatorOutputContainerName
         }
         {
-          name: 'TRANSLATOR_RESOURCE_NAME'
-          value: translator.name
-        }
-        {
           name: 'TRANSLATOR_RESOURCE_KEY'
           value: translator.listKeys().key1
         }
