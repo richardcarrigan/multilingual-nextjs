@@ -1,10 +1,11 @@
 name: Next.js app deployment
 
 on:
-  pull_request:
-    types: [closed]
-    branches:
-      - main
+  # pull_request:
+  #   types: [closed]
+  #   branches:
+  #     - main
+  push:
     paths-ignore:
       - 'multilingual-nextjs-functions/**'
       - 'function-app-deployment.bicep'
@@ -19,10 +20,32 @@ env:
   AZURE_WEBAPP_NAME: 'multilingual-nextjs-app'
 
 jobs:
-  provision:
+  translate:
     # Ensures that app only deploys if the PR has been accepted and merged, and isn't just a change to the function app files
     if: ${{ github.event.pull_request.merged }}
     runs-on: ubuntu-latest
+
+    steps:
+      - name: 'Checkout code'
+        uses: actions/checkout@main
+
+      # Log into Azure
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: 'Upload `_posts` to `input-files` blob storage container'
+        uses: azure/cli@v2
+        with:
+          inlineScript: |
+            #!/bin/bash
+            az storage blob upload-batch --destination 'input-files' --source './_posts'
+
+  provision:
+    runs-on: ubuntu-latest
+    needs: translate
 
     steps:
       # Checkout code
