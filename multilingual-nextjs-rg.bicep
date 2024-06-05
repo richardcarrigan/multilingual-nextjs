@@ -1,9 +1,15 @@
-param location string = resourceGroup().location
+param appName string
 param functionAppName string = 'multilingual-nextjs-functions'
+param location string = resourceGroup().location
+param storageAccountName string = 'multilingualnextjssa'
+param translatorGlossaryContainerName string = 'glossaries'
+param translatorInputContainerName string = 'input-files'
+param translatorName string = 'multilingual-nextjs-translator'
+param translatorOutputContainerName string = 'output-files'
 
 // Static web app for hosting Next.js site
 resource staticSite 'Microsoft.Web/staticSites@2022-09-01' = {
-  name: 'multilingual-nextjs-app'
+  name: appName
   location: location
   sku: {
     name: 'Free'
@@ -61,7 +67,7 @@ resource functionApp 'Microsoft.Web/sites@2023-12-01' = {
         }
         {
           name: 'INPUT_BLOB_STORAGE_CONTAINER_NAME'
-          value: 'input-files'
+          value: translatorInputContainerName
         }
         {
           name: 'OUTPUT_BLOB_STORAGE_ACCOUNT_KEY'
@@ -73,7 +79,7 @@ resource functionApp 'Microsoft.Web/sites@2023-12-01' = {
         }
         {
           name: 'OUTPUT_BLOB_STORAGE_CONTAINER_NAME'
-          value: 'output-files'
+          value: translatorOutputContainerName
         }
         {
           name: 'TRANSLATOR_RESOURCE_NAME'
@@ -106,7 +112,7 @@ resource functionApp 'Microsoft.Web/sites@2023-12-01' = {
 
 // Translation service
 resource translator 'Microsoft.CognitiveServices/accounts@2023-10-01-preview' = {
-  name: 'multilingual-nextjs-translator'
+  name: translatorName
   location: location
   kind: 'TextTranslation'
   sku: { name: 'F0' }
@@ -115,7 +121,7 @@ resource translator 'Microsoft.CognitiveServices/accounts@2023-10-01-preview' = 
 
 // Storage account for function app file/log storage, as well as the input, output, and glossary containers for the translation process
 resource storageAccount 'Microsoft.Storage/storageAccounts@2023-04-01' = {
-  name: 'multilingualnextjssa'
+  name: storageAccountName
   location: location
   sku: {
     name: 'Standard_LRS'
@@ -125,16 +131,16 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-04-01' = {
   resource blobServices 'blobServices@2023-04-01' = {
     name: 'default'
 
-    resource inputFilesContainer 'containers@2023-04-01' = {
-      name: 'input-files'
+    resource glossariesContainer 'containers@2023-04-01' = {
+      name: translatorGlossaryContainerName
     }
 
-    resource glossariesContainer 'containers@2023-04-01' = {
-      name: 'glossaries'
+    resource inputFilesContainer 'containers@2023-04-01' = {
+      name: translatorInputContainerName
     }
 
     resource outputFilesContainer 'containers@2023-04-01' = {
-      name: 'output-files'
+      name: translatorOutputContainerName
     }
   }
 }
