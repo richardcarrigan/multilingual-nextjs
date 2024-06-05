@@ -41,7 +41,7 @@ jobs:
         with:
           inlineScript: |
             #!/bin/bash
-            az storage blob upload-batch --destination 'input-files' --source './_posts'
+            az storage blob upload-batch --destination 'input-files' --source './_posts' --account-name 'multilingualnextjssa'
 
   provision:
     runs-on: ubuntu-latest
