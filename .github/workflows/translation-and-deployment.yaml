@@ -147,9 +147,9 @@ jobs:
             #!/bin/bash
             az storage blob delete-batch --account-name 'multilingualnextjssa' --source 'output-files'
 
-      - name: 'Trigger function app and wait for successful (200) response'
+      # - name: 'Trigger function app and wait for successful (200) response'
 
-      - name: 'Add contents of `output-files` blob storage container to `_posts` folder'
+      # - name: 'Add contents of `output-files` blob storage container to `_posts` folder'
 
       - name: 'Clear `input-files` blob storage container'
         uses: azure/cli@v2
