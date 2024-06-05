@@ -140,6 +140,24 @@ jobs:
             #!/bin/bash
             az storage blob upload-batch --destination 'input-files' --source './_posts' --account-name 'multilingualnextjssa'
 
+      - name: 'Clear `output-files` blob storage container'
+        uses: azure/cli@v2
+        with:
+          inlineScript: |
+            #!/bin/bash
+            az storage blob delete-batch --account-name 'multilingualnextjssa' --source 'output-files'
+
+      - name: 'Trigger function app and wait for successful (200) response'
+
+      - name: 'Add contents of `output-files` blob storage container to `_posts` folder'
+
+      - name: 'Clear `input-files` blob storage container'
+        uses: azure/cli@v2
+        with:
+          inlineScript: |
+            #!/bin/bash
+            az storage blob delete-batch --account-name 'multilingualnextjssa' --source 'input-files'
+
   build-and-deploy-nextjs:
     runs-on: ubuntu-latest
     needs: translate
