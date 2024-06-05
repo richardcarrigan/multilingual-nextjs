@@ -132,24 +132,29 @@ jobs:
         with:
           inlineScript: |
             #!/bin/bash
-            az storage blob delete-batch --account-name ${{ env.AZURE_STORAGE_ACCOUNT_NAME }} --source 'output-files' --auth-mode login
-            az storage blob delete-batch --account-name ${{ env.AZURE_STORAGE_ACCOUNT_NAME }} --source 'input-files' --auth-mode login
-            az storage blob delete-batch --account-name ${{ env.AZURE_STORAGE_ACCOUNT_NAME }} --source 'glossaries' --auth-mode login
-            az storage blob upload-batch --destination 'glossaries' --source './multilingual-nextjs-functions/src/glossaries' --account-name ${{ env.AZURE_STORAGE_ACCOUNT_NAME }}
-            az storage blob upload-batch --destination 'input-files' --source './_posts' --account-name ${{ env.AZURE_STORAGE_ACCOUNT_NAME }}
+            az storage blob delete-batch --account-name ${{ env.AZURE_STORAGE_ACCOUNT_NAME }} --source 'output-files' --auth-mode key
+            az storage blob delete-batch --account-name ${{ env.AZURE_STORAGE_ACCOUNT_NAME }} --source 'input-files' --auth-mode key
+            az storage blob delete-batch --account-name ${{ env.AZURE_STORAGE_ACCOUNT_NAME }} --source 'glossaries' --auth-mode key
+            az storage blob upload-batch --destination 'glossaries' --source './multilingual-nextjs-functions/src/glossaries' --account-name ${{ env.AZURE_STORAGE_ACCOUNT_NAME }} --auth-mode key
+            az storage blob upload-batch --destination 'input-files' --source './_posts' --account-name ${{ env.AZURE_STORAGE_ACCOUNT_NAME }} --auth-mode key
 
       # - name: 'Trigger function app and wait for successful (200) response'
 
-      # - name: 'Add contents of `output-files` blob storage container to `_posts` folder'
+      - name: 'Add contents of `output-files` blob storage container to `_posts` folder'
+        uses: azure/cli@v2
+        with:
+          inlineScript: |
+            #!/bin/bash
+            az storage blob download-batch --destination './_posts' --source 'output-files' --account-name ${{ env.AZURE_STORAGE_ACCOUNT_NAME }} --auth-mode key
 
       - name: 'Post translation clean-up'
         uses: azure/cli@v2
         with:
           inlineScript: |
             #!/bin/bash
-            az storage blob delete-batch --account-name ${{ env.AZURE_STORAGE_ACCOUNT_NAME }} --source 'input-files' --auth-mode login
-            az storage blob delete-batch --account-name ${{ env.AZURE_STORAGE_ACCOUNT_NAME }} --source 'output-files' --auth-mode login
-            az storage blob delete-batch --account-name ${{ env.AZURE_STORAGE_ACCOUNT_NAME }} --source 'glossaries' --auth-mode login
+            az storage blob delete-batch --account-name ${{ env.AZURE_STORAGE_ACCOUNT_NAME }} --source 'input-files' --auth-mode key
+            az storage blob delete-batch --account-name ${{ env.AZURE_STORAGE_ACCOUNT_NAME }} --source 'output-files' --auth-mode key
+            az storage blob delete-batch --account-name ${{ env.AZURE_STORAGE_ACCOUNT_NAME }} --source 'glossaries' --auth-mode key
 
   build-and-deploy-nextjs:
     runs-on: ubuntu-latest
