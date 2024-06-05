@@ -76,6 +76,14 @@ resource functionApp 'Microsoft.Web/sites@2023-12-01' = {
           value: 'output-files'
         }
         {
+          name: 'TRANSLATOR_RESOURCE_NAME'
+          value: translator.name
+        }
+        {
+          name: 'TRANSLATOR_RESOURCE_KEY'
+          value: listKeys(translator.id, '2019-06-01').keys[0].value
+        }
+        {
           // Specifies storage account to run functions from, store function code files in
           name: 'WEBSITE_CONTENTAZUREFILECONNECTIONSTRING'
           value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};AccountKey=${listKeys(storageAccount.id, '2019-06-01').keys[0].value};EndpointSuffix=${environment().suffixes.storage}'
