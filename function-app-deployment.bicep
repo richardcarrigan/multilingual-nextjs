@@ -81,7 +81,7 @@ resource functionApp 'Microsoft.Web/sites@2023-12-01' = {
         }
         {
           name: 'TRANSLATOR_RESOURCE_KEY'
-          value: listKeys(translator.id, '2019-06-01').keys[0].value
+          value: translator.listKeys().key1
         }
         {
           // Specifies storage account to run functions from, store function code files in
