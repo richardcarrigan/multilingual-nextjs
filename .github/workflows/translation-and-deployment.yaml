@@ -175,7 +175,7 @@ jobs:
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
-          name: multilingual-nextjs-posts
+          name: multilingual-nextjs-content
 
       - name: Setup Node.js version
         uses: actions/setup-node@v4
