@@ -158,14 +158,6 @@ jobs:
             az storage blob delete-batch --account-name ${{ env.AZURE_STORAGE_ACCOUNT_NAME }} --source 'output-files' --auth-mode key
             az storage blob delete-batch --account-name ${{ env.AZURE_STORAGE_ACCOUNT_NAME }} --source 'glossaries' --auth-mode key
 
-  build-and-deploy-nextjs:
-    runs-on: ubuntu-latest
-    needs: translate
-
-    steps:
-      - name: Checkout Source
-        uses: actions/checkout@v4
-
       - name: Setup Node.js version
         uses: actions/setup-node@v4
         with:
@@ -186,6 +178,25 @@ jobs:
         with:
           name: multilingual-nextjs-app
           path: release.zip
+
+  build-and-deploy-nextjs:
+    runs-on: ubuntu-latest
+    needs: translate
+
+    steps:
+      - name: Checkout Source
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js version
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18.x'
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Build Next.js app
+        run: npm run build
 
       # Log into Azure
       - uses: azure/login@v2
