@@ -9,7 +9,7 @@ import { CMS_NAME } from '@/lib/constants';
 import { getPostBySlug, getAllPosts } from '@/lib/api';
 
 export default async function Post({ params }) {
-  const post = getPostBySlug(params.slug);
+  const post = getPostBySlug(params.lang, params.slug);
 
   if (!post) {
     return notFound();
@@ -37,7 +37,7 @@ export default async function Post({ params }) {
 }
 
 export function generateMetadata({ params }) {
-  const post = getPostBySlug(params.slug);
+  const post = getPostBySlug(params.lang, params.slug);
 
   if (!post) {
     return notFound();
