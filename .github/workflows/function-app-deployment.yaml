@@ -1,13 +1,14 @@
 name: Function app deployment
 
-on:
-  pull_request:
-    types: [closed]
-    branches:
-      - main
-    paths:
-      - 'multilingual-nextjs-functions/**'
-      - 'function-app-deployment.bicep'
+# on:
+#   pull_request:
+#     types: [closed]
+#     branches:
+#       - main
+#     paths:
+#       - 'multilingual-nextjs-functions/**'
+#       - 'function-app-deployment.bicep'
+on: workflow_dispatch
 
 permissions:
   id-token: write
