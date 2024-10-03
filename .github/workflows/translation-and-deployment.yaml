@@ -5,7 +5,7 @@ name: Translation and deployment
 #     types: [closed]
 #     branches:
 #       - main
-on: push
+on: workflow_dispatch
 
 permissions:
   id-token: write
