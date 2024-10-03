@@ -4,8 +4,8 @@ import Intro from '@/app/_components/intro';
 import MoreStories from '@/app/_components/more-stories';
 import { getAllPosts } from '@/lib/api';
 
-export default function Index() {
-  const allPosts = getAllPosts();
+export default function Index({params}) {
+  const allPosts = getAllPosts(params.lang);
 
   const heroPost = allPosts[0];
 
@@ -22,8 +22,9 @@ export default function Index() {
           author={heroPost.author}
           slug={heroPost.slug}
           excerpt={heroPost.excerpt}
+          lang={params.lang}
         />
-        {morePosts.length > 0 && <MoreStories posts={morePosts} />}
+        {morePosts.length > 0 && <MoreStories posts={morePosts} lang={params.lang} />}
       </Container>
     </main>
   );
