@@ -16,7 +16,7 @@ env:
   AZURE_FUNCTIONAPP_PACKAGE_PATH: './multilingual-nextjs-functions'
   AZURE_WEBAPP_NAME: 'multilingual-nextjs-app'
   NODE_VERSION: '20.x'
-  # OUTPUT_LOCATION: '.next' # location of client code build output
+  OUTPUT_LOCATION: '' # location of client code build output
   AZURE_STORAGE_ACCOUNT_NAME: 'multilingualnextjssa'
 
 jobs:
@@ -210,4 +210,4 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }} # Used for GitHub integrations (i.e. PR comments)
           action: 'upload'
           app_location: ${{ env.APP_LOCATION }}
-          # output_location: ${{ env.OUTPUT_LOCATION }}
+          output_location: ${{ env.OUTPUT_LOCATION }}
