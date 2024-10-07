@@ -3,6 +3,7 @@ import HeroPost from '@/app/_components/hero-post';
 import Intro from '@/app/_components/intro';
 import MoreStories from '@/app/_components/more-stories';
 import { getAllPosts } from '@/lib/api';
+import LanguageSelect from '../_components/language-picker';
 
 export default function Index({params}) {
   const allPosts = getAllPosts(params.lang);
@@ -14,6 +15,7 @@ export default function Index({params}) {
   return (
     <main>
       <Container>
+        <LanguageSelect lang={params.lang} />
         <Intro />
         <HeroPost
           title={heroPost.title}
