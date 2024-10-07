@@ -1,13 +1,13 @@
 ---
-title: 'Document Translation'
-excerpt: 'Document Translation is a new feature in Azure Translator service which enables enterprises, translation agencies, and consumers who require volumes of complex documents to be translated into one or more languages preserving structure and format in the original document.'
-coverImage: '/assets/blog/dynamic-routing/cover.jpg'
-date: '2024-05-23T23:53:00.000Z'
+title: "Document Translation"
+excerpt: "Document Translation is a new feature in Azure Translator service which enables enterprises, translation agencies, and consumers who require volumes of complex documents to be translated into one or more languages preserving structure and format in the original document."
+coverImage: "/assets/blog/dynamic-routing/cover.jpg"
+date: "2024-05-23T23:53:00.000Z"
 author:
-  name: JJ Kasper
-  picture: '/assets/blog/authors/jj.jpeg'
+  name: "JJ Kasper"
+  picture: "/assets/blog/authors/jj.jpeg"
 ogImage:
-  url: '/assets/blog/dynamic-routing/cover.jpg'
+  url: "/assets/blog/dynamic-routing/cover.jpg"
 ---
 
 ## Overview
