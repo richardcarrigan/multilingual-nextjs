@@ -66,6 +66,7 @@ app.http('TranslateContent', {
           {
             source: {
               sourceUrl: inputBlobSasUrl,
+              language: 'en' // English
             },
             targets: [
               {
