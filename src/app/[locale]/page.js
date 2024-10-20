@@ -3,9 +3,10 @@ import HeroPost from '@/app/_components/hero-post';
 import Intro from '@/app/_components/intro';
 import MoreStories from '@/app/_components/more-stories';
 import { getAllPosts } from '@/lib/api';
+import LanguageSelect from '../_components/language-picker';
 
-export default function Index() {
-  const allPosts = getAllPosts();
+export default async function Index({ params }) {
+  const allPosts = await getAllPosts(params.locale);
 
   const heroPost = allPosts[0];
 
@@ -14,6 +15,7 @@ export default function Index() {
   return (
     <main>
       <Container>
+        <LanguageSelect locale={params.locale} />
         <Intro />
         <HeroPost
           title={heroPost.title}
@@ -22,8 +24,9 @@ export default function Index() {
           author={heroPost.author}
           slug={heroPost.slug}
           excerpt={heroPost.excerpt}
+          locale={params.locale}
         />
-        {morePosts.length > 0 && <MoreStories posts={morePosts} />}
+        {morePosts.length > 0 && <MoreStories posts={morePosts} locale={params.locale} />}
       </Container>
     </main>
   );

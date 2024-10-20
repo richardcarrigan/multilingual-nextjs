@@ -53,8 +53,8 @@ export function generateMetadata({ params }) {
   };
 }
 
-export async function generateStaticParams() {
-  const posts = getAllPosts();
+export async function generateStaticParams({ params }) {
+  const posts = getAllPosts(params.locale);
 
   return posts.map((post) => ({
     slug: post.slug,
