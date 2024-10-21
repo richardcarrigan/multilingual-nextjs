@@ -1,0 +1,27 @@
+﻿<!DOCTYPE html>
+<html dir="ltr">
+<head>
+  <meta name="title" content="Document Translation">
+  <meta name="excerpt" content="Document Translation is a new feature in Azure Translator service which enables enterprises, translation agencies, and consumers who require volumes of complex documents to be translated into one or more languages preserving structure and format in the original document.">
+  <meta name="coverImage" content="/assets/blog/dynamic-routing/cover.jpg">
+  <meta name="date" content="2024-05-23T23:53:00.000Z">
+  <meta name="author" content="JJ Kasper">
+  <meta name="author_picture" content="/assets/blog/authors/jj.jpeg">
+  <meta name="ogImage" content="/assets/blog/dynamic-routing/cover.jpg">
+</head>
+<body>
+  <h2>Visión general</h2>
+  <p>La traducción de documentos es una nueva característica del <a href="https://azure.microsoft.com/en-us/services/cognitive-services/translator/">servicio Azure Translator</a> que permite a las empresas, las agencias de traducción y los consumidores que necesitan traducir volúmenes de documentos complejos a uno o varios idiomas, conservando la estructura y el formato del documento original. Traduce de forma asíncrona documentos completos en una variedad de formatos de archivo <strong>, incluidos texto, HTML, Word, Excel, PowerPoint, Outlook, PDF y Markdown</strong> en cualquiera de los 111 idiomas y dialectos compatibles con el servicio Translator.</p>
+  <p>Las ofertas de traducción estándar en el mercado solo aceptan texto sin formato o html, y limitan el número de caracteres en una solicitud. Los usuarios que traducen documentos grandes deben analizar los documentos para extraer texto, dividirlos en secciones más pequeñas y traducirlos por separado. Si las oraciones se dividen en un punto de interrupción no natural, puede perder el contexto, lo que resulta en traducciones subóptimas. Una vez recibidos los resultados de la traducción, el cliente debe fusionar las piezas traducidas en el documento traducido. Esto implica llevar un registro de qué pieza traducida corresponde a la sección equivalente en el documento original. El problema se complica cuando los clientes quieren traducir documentos complejos con contenido enriquecido.</p>
+  <p>La traducción de documentos facilita al cliente la traducción:</p>
+  <ol>
+  <li>volúmenes de documentos de gran tamaño,</li>
+  <li>documentos en una variedad de formatos de archivo,</li>
+  <li>documentos que requieran conservar el diseño y el formato originales, y</li>
+  <li>documentos en varios idiomas de destino.</li>
+  </ol>
+  <h2>Experiencia de usuario</h2>
+  <p>El usuario realiza una solicitud al servicio de traducción de documentos especificando la ubicación de los documentos de origen y destino, y la lista de idiomas de destino. El servicio devuelve un identificador que permite al usuario realizar un seguimiento del estado de la traducción. De forma asíncrona, la traducción de documentos extrae cada documento de la ubicación de origen, reconoce el formato del documento, aplica la técnica de análisis correcto para extraer el contenido textual del documento y traduce el contenido textual a los idiomas de destino. A continuación, reconstruye el documento traducido, conservando el diseño y el formato tal y como están presentes en los documentos de origen, y almacena el documento traducido en una ubicación especificada. La traducción de documentos actualiza el estado de la traducción, ya sea a nivel de trabajo o de documento.</p>
+  <p>Los usuarios pueden proporcionar un identificador de modelo personalizado creado mediante el portal de traductores personalizados, glosarios personalizados o ambos como parte de la solicitud de traducción de documentos. La traducción de documentos aplica dicha personalización, conservando terminologías específicas y proporcionando traducciones específicas del dominio en los documentos traducidos.</p>
+</body>
+</html>
