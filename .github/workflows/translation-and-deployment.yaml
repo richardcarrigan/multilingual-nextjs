@@ -114,7 +114,7 @@ jobs:
   translate:
     runs-on: ubuntu-latest
     needs: deploy-function-app
-    name: Translate markdown files
+    name: Translate HTML files
 
     steps:
       - name: Checkout Source
@@ -142,12 +142,12 @@ jobs:
         run: |
           curl --location 'https://multilingual-nextjs-functions.azurewebsites.net/api/TranslateContent'
 
-      # - name: 'Add contents of `output-files` blob storage container to `_posts` folder'
-      #   uses: azure/cli@v2
-      #   with:
-      #     inlineScript: |
-      #       #!/bin/bash
-      #       az storage blob download-batch --destination './_posts' --source 'output-files' --account-name ${{ env.AZURE_STORAGE_ACCOUNT_NAME }} --auth-mode key
+      - name: 'Add contents of `output-files` blob storage container to `_posts` folder'
+        uses: azure/cli@v2
+        with:
+          inlineScript: |
+            #!/bin/bash
+            az storage blob download-batch --destination './_posts' --source 'output-files' --account-name ${{ env.AZURE_STORAGE_ACCOUNT_NAME }} --auth-mode key
 
       - name: 'Post translation clean-up'
         uses: azure/cli@v2
@@ -176,10 +176,11 @@ jobs:
           submodules: true
           lfs: false
 
-      # - name: Download artifact from build job
-      #   uses: actions/download-artifact@v4
-      #   with:
-      #     name: multilingual-nextjs-content
+      - name: Download artifact from build job
+        uses: actions/download-artifact@v4
+        with:
+          name: multilingual-nextjs-content
+          path: _posts/
 
       - name: Log into Azure
         uses: azure/login@v2
