@@ -15,8 +15,6 @@ export default async function Post({ params }) {
     return notFound();
   }
 
-  const content = await markdownToHtml(post.content || '');
-
   return (
     <main>
       <Alert preview={post.preview} />
@@ -29,7 +27,7 @@ export default async function Post({ params }) {
             date={post.date}
             author={post.author}
           />
-          <PostBody content={content} />
+          <PostBody content={post.content} />
         </article>
       </Container>
     </main>
