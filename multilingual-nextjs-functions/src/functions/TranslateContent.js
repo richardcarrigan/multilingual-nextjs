@@ -7,6 +7,7 @@ import {
 } from '@azure/storage-blob';
 import axios from 'axios';
 import delay from 'delay';
+import { parseDocument, DomUtils } from 'htmlparser2';
 
 app.http('TranslateContent', {
   methods: ['GET'],
@@ -31,6 +32,19 @@ app.http('TranslateContent', {
     );
     const inputContainerClient = inputBlobServiceClient.getContainerClient(
       process.env.INPUT_BLOB_STORAGE_CONTAINER_NAME
+    );
+    
+    // Create container client for `output-files` container
+    const outputSharedKeyCredential = new StorageSharedKeyCredential(
+      process.env.OUTPUT_BLOB_STORAGE_ACCOUNT_NAME,
+      process.env.OUTPUT_BLOB_STORAGE_ACCOUNT_KEY
+    );
+    const outputBlobServiceClient = new BlobServiceClient(
+      `https://${process.env.OUTPUT_BLOB_STORAGE_ACCOUNT_NAME}.blob.core.windows.net`,
+      outputSharedKeyCredential
+    );
+    const outputContainerClient = outputBlobServiceClient.getContainerClient(
+      process.env.OUTPUT_BLOB_STORAGE_CONTAINER_NAME
     );
 
     // Initial config for Azure AI Translator resource
@@ -59,7 +73,7 @@ app.http('TranslateContent', {
       );
 
       const targetFileName = blob.name.replace('en-us', 'es-es');
-
+      
       // Azure AI Translator blob-specific config
       const data = JSON.stringify({
         inputs: [
@@ -86,7 +100,7 @@ app.http('TranslateContent', {
           },
         ],
       });
-
+      
       // Axios request config
       const config = {
         method: 'post',
@@ -97,7 +111,7 @@ app.http('TranslateContent', {
         },
         data: data,
       };
-
+      
       // Submit blob file to Azure AI Translator service for translation
       await axios(config)
         .then(async (response) => {
@@ -173,6 +187,47 @@ app.http('TranslateContent', {
       }
     } while (activeOperations.length > 0);
 
+    // Translate each file's HTML metadata (<meta name='example' content='example'>)
+    for await (const blob of outputContainerClient.listBlobsFlat()) {
+      const blockBlobClient = outputContainerClient.getBlockBlobClient(blob.name);
+
+      // Download the file
+      const downloadBlockBlobResponse = await blockBlobClient.download(0);
+      const downloaded = await streamToString(downloadBlockBlobResponse.readableStreamBody);
+
+      // Extract the metadata 'title' and 'excerpt' and translate it
+      const document = parseDocument(downloaded);
+      const head = DomUtils.findOne(el => el.tagName === 'head', document.children);
+      const metaTags = DomUtils.findAll(el => el.tagName === 'meta', head.children);
+      const data = {};
+      for (const tag of metaTags) {
+        const name = tag.attribs.name;
+        let content = tag.attribs.content;
+
+        if(name && content) {
+          if(name === 'title' || name === 'excerpt') {
+            // Translate it
+            content = await translate(translatorKey, 'es', content);
+          }
+          data[name] = content;
+        }
+      }
+
+      // Reassemble the HTML file with the translated 'title' and 'excerpt'
+      const translatedHead = `<head>${Object.entries(data).map(([name, content]) => `<meta name="${name}" content="${content}">`).join('\n')}</head>`;
+      context.log(translatedHead);
+      let translatedHtml = downloaded;
+      context.log(translatedHtml);
+      translatedHtml = translatedHtml.replace(
+        /<head[^>]*>[\s\S]*<\/head>/i, 
+        translatedHead
+      );
+
+      // Replace the original translated file
+      const outputBlockBlobClient = outputContainerClient.getBlockBlobClient(blob.name);
+      await outputBlockBlobClient.upload(translatedHtml, translatedHtml.length, { overwrite: true });
+    }
+
     return {
       status: 200,
       body: `${processedBlobCounter} files translated!`,
@@ -237,4 +292,39 @@ function generateContainerSas(
     sasOptions,
     sharedKeyCredential
   ).toString();
+}
+
+async function streamToString(readableStream) {
+  return new Promise((resolve, reject) => {
+    const chunks = [];
+    readableStream.on('data', data => {
+      chunks.push(data.toString());
+    });
+    readableStream.on('end', () => {
+      resolve(chunks.join(''));
+    });
+    readableStream.on('error', reject);
+  });
+}
+
+async function translate(translatorKey, language, text) {
+  const endpoint = 'https://api.cognitive.microsofttranslator.com';
+  const path = '/translate?api-version=3.0';
+
+  const url = `${endpoint}${path}&to=${language}`;
+
+  const response = await axios({
+    method: 'post',
+    url,
+    headers: {
+      'Ocp-Apim-Subscription-Key': translatorKey,
+      'Ocp-Apim-Subscription-Region': 'centralus',
+      'Content-Type': 'application/json'
+    },
+    data: [{
+      'text': text
+    }]
+  });
+
+  return response.data[0].translations[0].text;
 }
