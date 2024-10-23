@@ -12,6 +12,7 @@
     "@azure/storage-blob": "^12.18.0",
     "axios": "^1.7.2",
     "delay": "^6.0.0",
+    "gray-matter": "^4.0.3",
     "htmlparser2": "^9.1.0"
   },
   "main": "src/functions/*.js"

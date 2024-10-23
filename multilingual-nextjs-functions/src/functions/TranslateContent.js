@@ -8,6 +8,7 @@ import {
 import axios from 'axios';
 import delay from 'delay';
 import { parseDocument, DomUtils } from 'htmlparser2';
+import matter from 'gray-matter';
 
 app.http('TranslateContent', {
   methods: ['GET'],
@@ -188,44 +189,37 @@ app.http('TranslateContent', {
     } while (activeOperations.length > 0);
 
     // Translate each file's HTML metadata (<meta name='example' content='example'>)
-    for await (const blob of outputContainerClient.listBlobsFlat()) {
-      const blockBlobClient = outputContainerClient.getBlockBlobClient(blob.name);
+    for await (const blob of inputContainerClient.listBlobsFlat()) {
+      // Download the original file
+      const inputBlockBlobClient = inputContainerClient.getBlockBlobClient(blob.name);
+      const downloadInputBlockBlobResponse = await inputBlockBlobClient.download(0);
+      const downloadedInput = await streamToString(downloadInputBlockBlobResponse.readableStreamBody);
 
-      // Download the file
-      const downloadBlockBlobResponse = await blockBlobClient.download(0);
-      const downloaded = await streamToString(downloadBlockBlobResponse.readableStreamBody);
+      // Download the translated but corrupted file
+      const outputBlobName = blob.name.replace('en-us', 'es-es');
+      const outputBlockBlobClient = outputContainerClient.getBlockBlobClient(outputBlobName);
+      const downloadOutputBlockBlobResponse = await outputBlockBlobClient.download(0);
+      let downloadedOutput = await streamToString(downloadOutputBlockBlobResponse.readableStreamBody);
 
       // Extract the metadata 'title' and 'excerpt' and translate it
-      const document = parseDocument(downloaded);
-      const head = DomUtils.findOne(el => el.tagName === 'head', document.children);
-      const metaTags = DomUtils.findAll(el => el.tagName === 'meta', head.children);
-      const data = {};
-      for (const tag of metaTags) {
-        const name = tag.attribs.name;
-        let content = tag.attribs.content;
-
-        if(name && content) {
-          if(name === 'title' || name === 'excerpt') {
-            // Translate it
-            content = await translate(translatorKey, 'es', content);
-          }
-          data[name] = content;
-        }
-      }
-
-      // Reassemble the HTML file with the translated 'title' and 'excerpt'
-      const translatedHead = `<head>${Object.entries(data).map(([name, content]) => `<meta name="${name}" content="${content}">`).join('\n')}</head>`;
-      context.log(translatedHead);
-      let translatedHtml = downloaded;
-      context.log(translatedHtml);
-      translatedHtml = translatedHtml.replace(
-        /<head[^>]*>[\s\S]*<\/head>/i, 
-        translatedHead
-      );
+      const inputDocument = matter(downloadedInput);
+      const { data } = inputDocument;
+      const { title, excerpt } = data;
+      const translatedTitle = await translate(translatorKey, 'es', title);
+      const translatedExcerpt = await translate(translatorKey, 'es', excerpt);
+      
+      // Reassemble the Markdown file with the translated 'title' and 'excerpt'
+      const translatedData = {
+        ...data,
+        title: translatedTitle,
+        excerpt: translatedExcerpt
+      };
+      const translatedMetadata = matter.stringify('', translatedData);
+      const frontmatterRegex = /---[\s\S]*?---/;
+      downloadedOutput = downloadedOutput.replace(frontmatterRegex, translatedMetadata);
 
       // Replace the original translated file
-      const outputBlockBlobClient = outputContainerClient.getBlockBlobClient(blob.name);
-      await outputBlockBlobClient.upload(translatedHtml, translatedHtml.length, { overwrite: true });
+      await outputBlockBlobClient.upload(downloadedOutput, downloadedOutput.length, { overwrite: true });
     }
 
     return {

@@ -1,6 +1,5 @@
 import fs from "fs";
-import { DomUtils, parseDocument } from "htmlparser2";
-import serialize from 'dom-serializer';
+import matter from 'gray-matter';
 import { join } from "path";
 
 const defaultLocale = 'en-US';
@@ -20,34 +19,10 @@ export function getPostBySlug(language, slug) {
     process.cwd(),
     `_posts/${selectedLocale.toLowerCase()}`
   );
-  const realSlug = slug.replace(/\.html$/, '');
-  const fullPath = join(postsDirectory, `${realSlug}.html`);
+  const realSlug = slug.replace(/\.md$/, '');
+  const fullPath = join(postsDirectory, `${realSlug}.md`);
   const fileContents = fs.readFileSync(fullPath, 'utf8');
-  const document = parseDocument(fileContents);
-
-  const head = DomUtils.findOne(el => el.tagName === 'head', document.children);
-  const body = DomUtils.findOne(el => el.tagName = 'body', document.children);
-
-  const metaTags = DomUtils.findAll(el => el.tagName === 'meta', head.children);
-  const data = {};
-  metaTags.forEach(tag => {
-    const name = tag.attribs.name;
-    const content = tag.attribs.content;
-    if (name && content) {
-      if(name === 'author' || name === 'author_picture') {
-        data.author = { name: '', picture: '' };
-        if(name === 'author') {
-          data.author.name = content;
-        } else {
-          data.author.picture = content;
-        }
-      } else {
-        data[name] = content;
-      }
-    }
-  });
-
-  const content = serialize(body);
+  const { data, content } = matter(fileContents);
 
   return { ...data, slug: realSlug, content };
 }
