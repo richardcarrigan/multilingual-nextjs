@@ -7,7 +7,6 @@ import {
 } from '@azure/storage-blob';
 import axios from 'axios';
 import delay from 'delay';
-import { parseDocument, DomUtils } from 'htmlparser2';
 import matter from 'gray-matter';
 
 app.http('TranslateContent', {
@@ -64,7 +63,6 @@ app.http('TranslateContent', {
       'en-es.csv'
     );
 
-    // Check each blob in the `input-files` container, but only process English localized content HTML files with content
     for await (const blob of inputContainerClient.listBlobsFlat()) {
       // Generate blob-scoped SAS token
       const inputBlobSasUrl = generateBlobSas(
@@ -188,7 +186,7 @@ app.http('TranslateContent', {
       }
     } while (activeOperations.length > 0);
 
-    // Translate each file's HTML metadata (<meta name='example' content='example'>)
+    // Translate each file's metadata (<meta name='example' content='example'>)
     for await (const blob of inputContainerClient.listBlobsFlat()) {
       // Download the original file
       const inputBlockBlobClient = inputContainerClient.getBlockBlobClient(blob.name);

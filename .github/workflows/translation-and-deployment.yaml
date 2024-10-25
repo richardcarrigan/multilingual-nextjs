@@ -114,7 +114,7 @@ jobs:
   translate:
     runs-on: ubuntu-latest
     needs: deploy-function-app
-    name: Translate HTML files
+    name: Translate Markdown files
 
     steps:
       - name: Checkout Source
